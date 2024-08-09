@@ -1,26 +1,24 @@
 from flask import request, jsonify
-from ..config import Config
+from const import ACCEPTED_CONTENT_TYPES, SUBSCRIPTION_TIERS, SUBSCRIPTION_HEADER
 
 
-def check_utf8_encoding(request):
+def check_utf8_encoding():
     if request.method == "POST":
         content_type = request.headers.get("Content-Type")
-        if content_type not in Config.ACCEPTED_CONTENT_TYPES:
+        if content_type not in ACCEPTED_CONTENT_TYPES:
             return jsonify({"error": "Content-type header not accepted"}), 400
         else:
             pass
 
 
-def check_tier_subscription_header(request):
+def check_tier_subscription_header():
     if request.method == "POST":
-        tier = request.headers.get("X-Tier")
-        if tier is not None and tier not in Config.SUBSCRIPTION_TIERS:
+        tier = request.headers.get(SUBSCRIPTION_HEADER).lower()
+        if tier is None or tier not in SUBSCRIPTION_TIERS:
             return (
                 jsonify(
                     {"error": "Subscription header must be present as the api-key"}
                 ),
                 400,
             )
-        else:
-            pass
     pass

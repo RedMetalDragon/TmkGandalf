@@ -1,15 +1,25 @@
 from flask import request, jsonify
-from ..config import Config
+from const import SUBSCRIPTION_TIERS, SUBSCRIPTION_HEADER
 import tiktoken
 
 
-def token_count(request, response, encoder_for_model: str = "cl100k_base"):
+def token_count(encoder_for_model: str = "cl100k_base"):
     if request.method == "POST":
+        max_tokens = SUBSCRIPTION_TIERS.get(
+            request.headers.get(SUBSCRIPTION_HEADER), 128
+        )
+        max_tokens = max(max_tokens, 128)
         encoding = tiktoken.get_encoding(encoder_for_model)
-        tier = request.headers.get("X-Tier")
         token_count = len(encoding.encode(request.json.get("prompt")))
-        if token_count > Config.SUBSCRIPTION_TIERS[tier]:
-            return jsonify({"error": "Token limit exceeded"}), 400
+        if token_count > max_tokens:
+            return (
+                jsonify(
+                    {
+                        "error": f"Token limit exceeded, max tokens allowed is {max_tokens}"
+                    }
+                ),
+                400,
+            )
         else:
             pass
     pass
