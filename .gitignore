@@ -8,6 +8,7 @@ dev-local/*
 .venv
 .venv/*
 dev-local
+*ipynb
 
 # C extensions
 *.so
