@@ -44,8 +44,4 @@ USER appuser
 # Copy the source code into the container.
 COPY . .
 
-# Expose the port that the application listens on.
-EXPOSE 6000
-
-# Run the application.
-CMD gunicorn 'dev-local.lib.python3.12.site-packages.httpx._transports.wsgi' --bind=0.0.0.0:6000
+CMD ["gunicorn", "--bind", "0.0.0.0:5200", "src.gandalf:app"]
