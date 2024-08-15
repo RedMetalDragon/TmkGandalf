@@ -13,12 +13,15 @@ def check_utf8_encoding():
 
 def check_tier_subscription_header():
     if request.method == "POST":
-        tier = request.headers.get(SUBSCRIPTION_HEADER).lower()
-        if tier is None or tier not in SUBSCRIPTION_TIERS:
-            return (
-                jsonify(
-                    {"error": "Subscription header must be present as the api-key"}
-                ),
-                400,
-            )
+        try:
+            tier = request.headers.get(SUBSCRIPTION_HEADER, type=str).lower()
+            if tier is None or tier not in SUBSCRIPTION_TIERS:
+                return (
+                    jsonify(
+                        {"error": "Subscription header must be present as the api-key"}
+                    ),
+                    400,
+                )
+        except Exception as e:
+            return jsonify({"error": "Subscription header must be present as the api-key"}), 400
     pass
