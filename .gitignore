@@ -2,6 +2,13 @@
 __pycache__/
 *.py[cod]
 *$py.class
+dev-local/*
+.vscode
+.vscode/*
+.venv
+.venv/*
+dev-local
+*ipynb
 
 # C extensions
 *.so
