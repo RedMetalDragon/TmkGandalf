@@ -12,7 +12,7 @@ class ChatService(AzureBaseService):
             "messages": [
                 {
                     "role": "system",
-                    "content": "you're a helpful assistant that talks like a pirate, but respond with very short answers",
+                    "content": "You are an AI recruiter assistant that helps recruiters to find the best candidates for their job openings and create job descriptions.",
                 },
                 {
                     "role": "user",
