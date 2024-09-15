@@ -93,23 +93,24 @@ jobs:
     needs: build-and-push
     environment: staging
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch || github.ref }}
 
-      - name: List files in root directory
-        run: ls -l ./
-
-      - name: Update Lambda function
+      - name: Install AWS CLI
+        run: sudo apt-get install awscli -y
+      
+      - name: Invoke Lambda function
         run: |
-          echo "Updating Lambda function"
-          curl -X POST https://${{secrets.LAMBDA_FUNCTION_URL}}/submit-tag \
-          -H "Authorization: FunctionKey ${{ secrets.LAMBDA_FUNCTION_KEY }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "tmk-service-version-tags-vs-staging": "tmk-gandalf",
-            "lastBuiltTag": "'${{ github.event.inputs.tag || env.IMAGE_TAG }}'"
-          }'
-          echo "Lambda function updated successfully"
+          aws lambda invoke \
+            --tmk-dashboard-staging \
+            --payload '{"tmk-service-version-tags-vs-staging": "tmk-gandalf", "lastBuiltTag": "'${{ needs.build-and-push.outputs.tag }}'"}' \
+            response.json
+          cat response.json  # Show the Lambda response in the logs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
