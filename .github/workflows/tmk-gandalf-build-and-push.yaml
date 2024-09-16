@@ -103,13 +103,18 @@ jobs:
       - name: Install AWS CLI
         run: sudo apt-get install awscli -y
       
-      - name: Invoke Lambda function
+      - name: Define payload
         run: |
-          aws lambda invoke \
-            --function-name tmk-dashboard-staging \
-            --payload '{"tmk-service-version-tags-vs-staging": "tmk-gandalf", "lastBuiltTag": "'${{ needs.build-and-push.outputs.tag }}'"}' \
-            response.json
-          cat response.json  # Show the Lambda response in the logs
+          echo "{\"tmk-service-version-tags-vs-staging\": \"tmk-gandalf\", \"lastBuiltTag\": \"${{ needs.build-and-push.outputs.tag }}\"}" > payload.json
+    
+      
+          - name: Invoke Lambda function
+          run: |
+            aws lambda invoke \
+              --function-name tmk-dashboard-staging \
+              --payload file://payload.json \
+              response.json
+            cat response.json  # Show the Lambda response in the logs
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
