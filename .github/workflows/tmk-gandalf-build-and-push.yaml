@@ -107,12 +107,15 @@ jobs:
         run: |
           echo "{\"tmk-service-version-tags-vs-staging\": \"tmk-gandalf\", \"lastBuiltTag\": \"${{ needs.build-and-push.outputs.tag }}\"}" > payload.json
     
-      
+      - name: Display Payload
+        run: cat payload.json
+
       - name: Invoke Lambda function
         run: |
             aws lambda invoke \
               --function-name tmk-dashboard-staging \
               --payload file://payload.json \
+              --cli-binary-format raw-in-base64-out \
               response.json
             cat response.json  # Show the Lambda response in the logs
         env:
