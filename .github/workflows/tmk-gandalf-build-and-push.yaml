@@ -108,8 +108,8 @@ jobs:
           echo "{\"tmk-service-version-tags-vs-staging\": \"tmk-gandalf\", \"lastBuiltTag\": \"${{ needs.build-and-push.outputs.tag }}\"}" > payload.json
     
       
-          - name: Invoke Lambda function
-          run: |
+      - name: Invoke Lambda function
+        run: |
             aws lambda invoke \
               --function-name tmk-dashboard-staging \
               --payload file://payload.json \
