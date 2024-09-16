@@ -102,22 +102,30 @@ jobs:
 
       - name: Install AWS CLI
         run: sudo apt-get install awscli -y
-      
+
       - name: Define payload
+        env:
+          FUNCTION_KEY: ${{ secrets.LAMBDA_FUNCTION_KEY }}
         run: |
-          echo "{\"tmk-service-version-tags-vs-staging\": \"tmk-gandalf\", \"lastBuiltTag\": \"${{ needs.build-and-push.outputs.tag }}\"}" > payload.json
-    
-      - name: Display Payload
-        run: cat payload.json
+          cat <<EOF > payload.json
+          {
+          "httpMethod": "POST",
+          "path": "/submit-tag",
+          "headers": {
+            "Authorization": "FunctionKey $FUNCTION_KEY"
+          },
+          "body": "{\"tmk-service-version-tags-vs-staging\": \"tmk-gandalf\", \"currentTag\": \"${{ github.event.inputs.branch || github.ref }}\"}"
+          }
+          EOF
 
       - name: Invoke Lambda function
         run: |
-            aws lambda invoke \
-              --function-name tmk-dashboard-staging \
-              --payload file://payload.json \
-              --cli-binary-format raw-in-base64-out \
-              response.json
-            cat response.json  # Show the Lambda response in the logs
+          aws lambda invoke \
+            --function-name tmk-dashboard-staging \
+            --payload file://payload.json \
+            --cli-binary-format raw-in-base64-out \
+            response.json
+          cat response.json  # Show the Lambda response in the logs
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
